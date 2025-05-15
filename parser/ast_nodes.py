@@ -1,8 +1,12 @@
 class ASTNode:
     """Base class for all AST nodes"""
     def print_node(self, indent=0):
-        """Print this node with the specified indentation level"""
+        """Return the string representation of the node with indentation"""
         raise NotImplementedError("Each AST node must implement print_node")
+
+    def __str__(self):
+        """Convert the node to a string representation"""
+        return self.print_node(0)
 
 
 class IntLiteralNode(ASTNode):
@@ -11,7 +15,7 @@ class IntLiteralNode(ASTNode):
         self.value = value
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"IntLiteral({self.value})")
+        return ' ' * indent + f"IntLiteral({self.value})"
 
 
 class FloatLiteralNode(ASTNode):
@@ -20,7 +24,7 @@ class FloatLiteralNode(ASTNode):
         self.value = value
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"FloatLiteral({self.value})")
+        return ' ' * indent + f"FloatLiteral({self.value})"
 
 
 class StringLiteralNode(ASTNode):
@@ -31,7 +35,7 @@ class StringLiteralNode(ASTNode):
     
     def print_node(self, indent=0):
         node_type = "FString" if self.is_f_string else "StringLiteral"
-        print(' ' * indent + f'{node_type}("{self.value}")')
+        return ' ' * indent + f'{node_type}("{self.value}")'
 
 
 class BoolLiteralNode(ASTNode):
@@ -40,13 +44,13 @@ class BoolLiteralNode(ASTNode):
         self.value = value
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"BoolLiteral({str(self.value)})")
+        return ' ' * indent + f"BoolLiteral({str(self.value)})"
 
 
 class NoneLiteralNode(ASTNode):
     """Node for None literal"""
     def print_node(self, indent=0):
-        print(' ' * indent + "None")
+        return ' ' * indent + "None"
 
 
 class IdentifierNode(ASTNode):
@@ -55,7 +59,7 @@ class IdentifierNode(ASTNode):
         self.name = name
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"Identifier({self.name})")
+        return ' ' * indent + f"Identifier({self.name})"
 
 
 class BinaryOpNode(ASTNode):
@@ -66,9 +70,7 @@ class BinaryOpNode(ASTNode):
         self.right = right
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"BinaryOp({self.op})")
-        self.left.print_node(indent + 2)
-        self.right.print_node(indent + 2)
+        return ' ' * indent + f"BinaryOp({self.op})"
 
 
 class AssignmentNode(ASTNode):
@@ -78,11 +80,13 @@ class AssignmentNode(ASTNode):
         self.value = value
     
     def print_node(self, indent=0):
-        print(' ' * indent + "Assignment")
-        print(' ' * (indent + 2) + "Target:")
-        self.target.print_node(indent + 4)
-        print(' ' * (indent + 2) + "Value:")
-        self.value.print_node(indent + 4)
+        lines = []
+        lines.append(' ' * indent + "Assignment")
+        lines.append(' ' * (indent + 2) + "Target:")
+        lines.append(self.target.print_node(indent + 4))
+        lines.append(' ' * (indent + 2) + "Value:")
+        lines.append(self.value.print_node(indent + 4))
+        return '\n'.join(lines)
 
 
 class FunctionCallNode(ASTNode):
@@ -93,20 +97,23 @@ class FunctionCallNode(ASTNode):
         self.keyword_args = keyword_args or {}
     
     def print_node(self, indent=0):
-        print(' ' * indent + "FunctionCall")
-        print(' ' * (indent + 2) + "Callable:")
-        self.callable.print_node(indent + 4)
+        lines = []
+        lines.append(' ' * indent + "FunctionCall")
+        lines.append(' ' * (indent + 2) + "Callable:")
+        lines.append(self.callable.print_node(indent + 4))
         
         if self.arguments:
-            print(' ' * (indent + 2) + "Arguments:")
+            lines.append(' ' * (indent + 2) + "Arguments:")
             for arg in self.arguments:
-                arg.print_node(indent + 4)
+                lines.append(arg.print_node(indent + 4))
         
         if self.keyword_args:
-            print(' ' * (indent + 2) + "Keyword Arguments:")
+            lines.append(' ' * (indent + 2) + "Keyword Arguments:")
             for key, value in self.keyword_args.items():
-                print(' ' * (indent + 4) + f"{key}:")
-                value.print_node(indent + 6)
+                lines.append(' ' * (indent + 4) + f"{key}:")
+                lines.append(value.print_node(indent + 6))
+        
+        return '\n'.join(lines)
 
 
 class ParameterNode(ASTNode):
@@ -120,11 +127,13 @@ class ParameterNode(ASTNode):
         param_info = self.name
         if self.is_keyword_only:
             param_info += ", keyword-only"
-        print(' ' * indent + f"Parameter({param_info})")
+        lines = [' ' * indent + f"Parameter({param_info})"]
         
         if self.default_value:
-            print(' ' * (indent + 2) + "Default Value:")
-            self.default_value.print_node(indent + 4)
+            lines.append(' ' * (indent + 2) + "Default Value:")
+            lines.append(self.default_value.print_node(indent + 4))
+        
+        return '\n'.join(lines)
 
 
 class FunctionDefNode(ASTNode):
@@ -135,15 +144,18 @@ class FunctionDefNode(ASTNode):
         self.body = body or []
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"FunctionDef({self.name})")
+        lines = []
+        lines.append(' ' * indent + f"FunctionDef({self.name})")
         
-        print(' ' * (indent + 2) + "Parameters:")
+        lines.append(' ' * (indent + 2) + "Parameters:")
         for param in self.parameters:
-            param.print_node(indent + 4)
+            lines.append(param.print_node(indent + 4))
         
-        print(' ' * (indent + 2) + "Body:")
+        lines.append(' ' * (indent + 2) + "Body:")
         for stmt in self.body:
-            stmt.print_node(indent + 4)
+            lines.append(stmt.print_node(indent + 4))
+        
+        return '\n'.join(lines)
 
 
 class ClassDefNode(ASTNode):
@@ -154,16 +166,19 @@ class ClassDefNode(ASTNode):
         self.body = body or []
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"ClassDef({self.name})")
+        lines = []
+        lines.append(' ' * indent + f"ClassDef({self.name})")
         
         if self.bases:
-            print(' ' * (indent + 2) + "Bases:")
+            lines.append(' ' * (indent + 2) + "Bases:")
             for base in self.bases:
-                base.print_node(indent + 4)
+                lines.append(base.print_node(indent + 4))
         
-        print(' ' * (indent + 2) + "Body:")
+        lines.append(' ' * (indent + 2) + "Body:")
         for stmt in self.body:
-            stmt.print_node(indent + 4)
+            lines.append(stmt.print_node(indent + 4))
+        
+        return '\n'.join(lines)
 
 
 class ReturnNode(ASTNode):
@@ -172,9 +187,10 @@ class ReturnNode(ASTNode):
         self.value = value
     
     def print_node(self, indent=0):
-        print(' ' * indent + "Return")
+        lines = [' ' * indent + "Return"]
         if self.value:
-            self.value.print_node(indent + 2)
+            lines.append(self.value.print_node(indent + 2))
+        return '\n'.join(lines)
 
 
 class ImportNode(ASTNode):
@@ -187,7 +203,7 @@ class ImportNode(ASTNode):
         import_info = self.module
         if self.alias:
             import_info += f" as {self.alias}"
-        print(' ' * indent + f"Import({import_info})")
+        return ' ' * indent + f"Import({import_info})"
 
 
 class FromImportNode(ASTNode):
@@ -197,13 +213,7 @@ class FromImportNode(ASTNode):
         self.imports = imports or []  # List of (name, alias) tuples
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"FromImport({self.module})")
-        print(' ' * (indent + 2) + "Names:")
-        for name, alias in self.imports:
-            import_info = name
-            if alias:
-                import_info += f" as {alias}"
-            print(' ' * (indent + 4) + import_info)
+        return ' ' * indent + f"FromImport({self.module})"
 
 
 class IfNode(ASTNode):
@@ -214,19 +224,7 @@ class IfNode(ASTNode):
         self.else_body = else_body or []
     
     def print_node(self, indent=0):
-        print(' ' * indent + "If")
-        
-        print(' ' * (indent + 2) + "Condition:")
-        self.condition.print_node(indent + 4)
-        
-        print(' ' * (indent + 2) + "Then:")
-        for stmt in self.then_body:
-            stmt.print_node(indent + 4)
-        
-        if self.else_body:
-            print(' ' * (indent + 2) + "Else:")
-            for stmt in self.else_body:
-                stmt.print_node(indent + 4)
+        return ' ' * indent + "If"
 
 
 class WhileNode(ASTNode):
@@ -236,14 +234,7 @@ class WhileNode(ASTNode):
         self.body = body or []
     
     def print_node(self, indent=0):
-        print(' ' * indent + "While")
-        
-        print(' ' * (indent + 2) + "Condition:")
-        self.condition.print_node(indent + 4)
-        
-        print(' ' * (indent + 2) + "Body:")
-        for stmt in self.body:
-            stmt.print_node(indent + 4)
+        return ' ' * indent + "While"
 
 
 class ForNode(ASTNode):
@@ -254,17 +245,7 @@ class ForNode(ASTNode):
         self.body = body or []
     
     def print_node(self, indent=0):
-        print(' ' * indent + "For")
-        
-        print(' ' * (indent + 2) + "Target:")
-        self.target.print_node(indent + 4)
-        
-        print(' ' * (indent + 2) + "Iterable:")
-        self.iterable.print_node(indent + 4)
-        
-        print(' ' * (indent + 2) + "Body:")
-        for stmt in self.body:
-            stmt.print_node(indent + 4)
+        return ' ' * indent + "For"
 
 
 class AttributeNode(ASTNode):
@@ -274,9 +255,11 @@ class AttributeNode(ASTNode):
         self.attr = attr
     
     def print_node(self, indent=0):
-        print(' ' * indent + f"Attribute({self.attr})")
-        print(' ' * (indent + 2) + "Value:")
-        self.value.print_node(indent + 4)
+        lines = []
+        lines.append(' ' * indent + f"Attribute({self.attr})")
+        lines.append(' ' * (indent + 2) + "Value:")
+        lines.append(self.value.print_node(indent + 4))
+        return '\n'.join(lines)
 
 
 class ListNode(ASTNode):
@@ -285,12 +268,7 @@ class ListNode(ASTNode):
         self.elements = elements or []
     
     def print_node(self, indent=0):
-        print(' ' * indent + "List")
-        
-        if self.elements:
-            print(' ' * (indent + 2) + "Elements:")
-            for element in self.elements:
-                element.print_node(indent + 4)
+        return ' ' * indent + "List"
 
 
 class DictNode(ASTNode):
@@ -299,15 +277,7 @@ class DictNode(ASTNode):
         self.items = items or []  # List of (key, value) tuples
     
     def print_node(self, indent=0):
-        print(' ' * indent + "Dict")
-        
-        if self.items:
-            print(' ' * (indent + 2) + "Items:")
-            for key, value in self.items:
-                print(' ' * (indent + 4) + "Key:")
-                key.print_node(indent + 6)
-                print(' ' * (indent + 4) + "Value:")
-                value.print_node(indent + 6)
+        return ' ' * indent + "Dict"
 
 
 class SubscriptNode(ASTNode):
@@ -317,26 +287,22 @@ class SubscriptNode(ASTNode):
         self.index = index
     
     def print_node(self, indent=0):
-        print(' ' * indent + "Subscript")
-        print(' ' * (indent + 2) + "Value:")
-        self.value.print_node(indent + 4)
-        print(' ' * (indent + 2) + "Index:")
-        self.index.print_node(indent + 4)
+        return ' ' * indent + "Subscript"
 
 
 class PassNode(ASTNode):
     """Node for pass statements"""
     def print_node(self, indent=0):
-        print(' ' * indent + "Pass")
+        return ' ' * indent + "Pass"
 
 
 class BreakNode(ASTNode):
     """Node for break statements"""
     def print_node(self, indent=0):
-        print(' ' * indent + "Break")
+        return ' ' * indent + "Break"
 
 
 class ContinueNode(ASTNode):
     """Node for continue statements"""
     def print_node(self, indent=0):
-        print(' ' * indent + "Continue")
+        return ' ' * indent + "Continue"
