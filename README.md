@@ -9,6 +9,7 @@ This project provides a custom implementation of a Python lexer and parser that 
 ## Features
 
 - Lexical analysis (tokenization) of Python code
+- Parser using Top Down Parsing technique
 - Parsing of tokens into an AST (Abstract Syntax tree)
 - Support for basic Python syntax including:
   - Variable declarations and assignments
