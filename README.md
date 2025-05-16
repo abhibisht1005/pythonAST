@@ -14,17 +14,16 @@ The project consists of several components:
 
 ## Features
 
-- Lexical analysis of Python code
-- Parsing and AST generation
-- Intermediate code generation in TAC form
-- Web-based visualization interface
-- Support for:
-  - Function definitions and calls
-  - Class definitions and methods
-  - Variable assignments
-  - Control flow statements
-  - Method calls
-  - Return statements
+- Lexical analysis (tokenization) of Python code.
+- Parsing of tokens into an AST using Top Down parsing (Abstract Syntax tree)
+- Support for basic Python syntax including:
+  - Variable declarations and assignments
+  - Function definitions
+  - Control flow statements (if, else, while, for)
+  - Imports
+  - Classes
+  - And more!
+
 
 ## Command Line Usage
 
@@ -144,5 +143,6 @@ Potential future enhancements include:
 - Support for more complex Python features (decorators, generators, etc.)
 
 ## Contributing
+
 
 Contributions are welcome! Feel free to submit pull requests or open issues for bugs or feature requests.
